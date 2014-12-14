@@ -1,6 +1,5 @@
 from volapi import Room
 import time
-import re
 
 # Options
 name = "MailBot"
