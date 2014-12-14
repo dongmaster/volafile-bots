@@ -5,7 +5,7 @@ import re
 # Options
 name = "MailBot"
 room = "PHS-Nb"
-password = "iamthemailman"
+password = "password"
 
 blacklist = [
 	"anon3000"
