@@ -9,7 +9,7 @@ import os
 # Options for the chat bot
 name = "MailBot"
 room = "PHS-Nb"
-password = "iamtheonewhomails"
+password = "password"
 commands = [
 	"!w",
 	"!m",
