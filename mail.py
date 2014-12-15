@@ -4,24 +4,29 @@ from volapi import Room
 import time
 import json
 import re
+import os
 
-# Options
+# Options for the chat bot
 name = "MailBot"
 room = "PHS-Nb"
-password = "password"
+password = "iamtheonewhomails"
 commands = [
 	"!w",
 	"!m",
 	"!mail"
 ]
 
-blacklist = [
+# Options for the upload bot
+name2 = "MailBot"
+room2 = "PMqVdQ"
+
+blacklist_recieve_mail = [
 	"anon3000"
 ]
 
 # Don't touch the code below unless you know what you are doing.
 myoc = Room(room, name)
-file_uploader = Room(room, name)
+file_uploader = Room(room2, name2)
 
 
 
@@ -38,6 +43,13 @@ except Exception:
 		'reciever' : "dongmaster",
 		'sender' : "myon",
 		'message' : "ur a faget"
+	}
+	^ Deprecated
+	
+	New:
+	
+	'dongmaster' : {
+		'url'
 	}
 '''
 
@@ -71,7 +83,7 @@ def onmessage(msg):
 			can_split = False
 		
 		if splitmsg[0] in commands and len(splitmsg) >= 3 and can_split == True:
-			if splitmsg[1].lower() in blacklist:
+			if splitmsg[1].lower() in blacklist_recieve_mail:
 				blacklisted_user = True
 				myoc.post_chat("That is a blacklisted user. Sending mail to that person is not allowed.")
 			
@@ -86,10 +98,11 @@ def onmessage(msg):
 					reciever = reciever.replace("\\", "")
 					print("Safed the filename, i think")
 				except Exception:
+					should_write = False
 					print("Couldn't safe filename. Probably a real error or false positive i dunno lol")
 				
-				print(str(reciever))
-				if should_write == True and True == False:
+				
+				if should_write == True:
 					text_to_write = str("\n \n From: " + sender + "\n To: " + reciever + "\n Message: \n " + message)
 					
 					mail_file = open(reciever.casefold(), "ab")
@@ -97,12 +110,7 @@ def onmessage(msg):
 					mail_file.write(bytes(text_to_write, 'UTF-8'))
 					mail_file.close()
 					
-					if msg.nick.casefold() in messages == False:
-						messages[reciever.casefold()] = {
-							'filename' : reciever.casefold()
-						}
-					
-					'''
+					''' Legacy code. This was used for printing out mail in the chat.
 					messages[reciever.casefold()] = {
 						'reciever' : reciever,
 						'sender' : sender,
@@ -110,14 +118,26 @@ def onmessage(msg):
 					}
 					'''
 					
-					print("got message \n reciever: " + reciever + "\n sender: " + sender + "\n message: " + message)
+					file_uploader.upload_file(reciever.casefold())
+					
+					time.sleep(1)
+					
+					#print("got message \n reciever: " + reciever + "\n sender: " + sender + "\n message: " + message)
 					myoc.post_chat("Added to mail pool.")
+					
+					messages[reciever.casefold()] = {
+						'reciever' : reciever,
+						'sender' : sender.casefold(),
+						'url' : file_uploader.files[0].url
+					}
 					
 					if msg.nick.casefold() == sender.casefold():
 						should_send = False
+						
+					print(str(messages))
 				elif should_write == False:
 					myoc.post_chat("Invalid name.")
-	'''
+	''' Legacy code. This was used for printing out mail in the chat.
 	try:
 		if should_send == True:
 			dict = messages[msg.nick.casefold()]
@@ -132,16 +152,21 @@ def onmessage(msg):
 		print("Failed to deliver mail.")
 		
 	'''
-	'''
+
 	try:
-		if should_send == True and msg.nick.casefold() in messages:
-		
+		if should_send == True:
+			dict = messages[msg.nick.casefold()]
+			dict_reciever = dict['reciever']
+			dict_sender = dict['sender']
+			dict_url = dict['url']
+			dict_url = dict_url.split("/")
+			dict_url = dict_url[4]
 			
-			
-			
+			myoc.post_chat("@" + str(dict_url))
 	except Exception:
 		print("Failed to deliver mail.")
-		'''
+		
+		
 	should_send = True
 	should_write = True
 	can_split = True
