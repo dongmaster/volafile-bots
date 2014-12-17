@@ -7,8 +7,8 @@ import re
 import os
 
 # Options for the chat bot
-name = "MailBot"
-room = "PHS-Nb"
+name = "MailBotv2"
+room = "BEEPi"
 password = "password"
 commands = [
 	"!w",
@@ -18,7 +18,8 @@ commands = [
 
 # Options for the upload bot
 name2 = "MailBot"
-room2 = "PMqVdQ"
+room2 = "PNZ1Qz"
+dir = "mail/"
 
 blacklist_recieve_mail = [
 	"anon3000"
@@ -103,9 +104,10 @@ def onmessage(msg):
 				
 				
 				if should_write == True:
-					text_to_write = str("\n \n From: " + sender + "\n To: " + reciever + "\n Message: \n " + message)
+					text_to_write = str("\n \nFrom: " + sender + "\nTo: " + reciever + "\nMessage: \n " + message)
 					
-					mail_file = open(reciever.casefold(), "ab")
+					path_to_mail_file = dir + reciever.casefold()
+					mail_file = open(path_to_mail_file, "ab")
 					
 					mail_file.write(bytes(text_to_write, 'UTF-8'))
 					mail_file.close()
@@ -118,7 +120,7 @@ def onmessage(msg):
 					}
 					'''
 					
-					file_uploader.upload_file(reciever.casefold())
+					file_uploader.upload_file(path_to_mail_file)
 					
 					time.sleep(1)
 					
@@ -128,7 +130,7 @@ def onmessage(msg):
 					messages[reciever.casefold()] = {
 						'reciever' : reciever,
 						'sender' : sender.casefold(),
-						'url' : file_uploader.files[0].url
+						'url' : file_uploader.files[-1].url
 					}
 					
 					if msg.nick.casefold() == sender.casefold():
@@ -162,7 +164,10 @@ def onmessage(msg):
 			dict_url = dict_url.split("/")
 			dict_url = dict_url[4]
 			
-			myoc.post_chat("@" + str(dict_url))
+			myoc.post_chat("BRAVE KNIGHT, " + str(dict_reciever) + ", YOU HAVE A HOT POCKET DELIVERY: " + "@" + str(dict_url))
+			
+			del messages[msg.nick.casefold()]
+			os.remove(dir + dict_reciever)
 	except Exception:
 		print("Failed to deliver mail.")
 		
